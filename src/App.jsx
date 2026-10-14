@@ -14,6 +14,7 @@ import {
 import "./brand.css";
 import SystemTour3D from "./SystemTour3D.jsx";
 import ContactForm from "./ContactForm.jsx";
+import FAQSection from "./FAQSection.jsx";
 
 const DEMO_URL = "https://gestao-servicos-guicamarg0.pages.dev/demo";
 const LOGIN_URL = "https://gestao-servicos-guicamarg0.pages.dev/login";
@@ -314,6 +315,7 @@ function SiteFooter() {
         </div>
         <nav aria-label="Navegação do rodapé">
           {navigation.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
+          <a href="/perguntas-frequentes/">Perguntas frequentes</a>
         </nav>
         <div className="footer-contact">
           <span>Vamos conversar?</span>
@@ -341,6 +343,7 @@ export function App() {
         <About />
         <DemoInvitation />
         <Plans />
+        <FAQSection />
         <div className="contact-wrap"><ContactForm /></div>
       </main>
       <SiteFooter />

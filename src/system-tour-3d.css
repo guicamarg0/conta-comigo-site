@@ -14,8 +14,9 @@
   margin: 0 0 14px;
   padding-inline: 8px;
 }
-.system-tour-heading span { color: #155b57; font-size: 16px; font-weight: 800; }
+.system-tour-heading h2 { margin: 0; color: #155b57; font-size: 19px; line-height: 1.35; letter-spacing: -.025em; }
 .system-tour-heading small { color: #607875; font-size: 13px; }
+.system-tour-intro { max-width: 820px; margin: -4px 8px 15px; color: #526b70; font-size: 14px; line-height: 1.6; }
 
 .system-tour-stage {
   width: 100%;
@@ -261,8 +262,9 @@
 
 @media (max-width: 760px) {
   .system-tour-heading { display: grid; gap: 2px; }
-  .system-tour-heading span { font-size: 14px; }
+  .system-tour-heading h2 { font-size: 16px; }
   .system-tour-heading small { font-size: 11px; }
+  .system-tour-intro { margin-top: -4px; font-size: 12px; }
   .system-tour-stage { perspective: 1000px; }
   .system-tour-face, .system-tour-flat { inset: 9px 1%; border-radius: 11px; }
   .system-tour-face.is-document, .system-tour-flat.is-document { display: grid; grid-template-columns: 1fr; }

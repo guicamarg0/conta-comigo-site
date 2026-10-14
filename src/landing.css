@@ -203,6 +203,21 @@ p { line-height: 1.65; }
 .plan-card .button { align-self: flex-start; margin-top: auto; }
 .plans-note { margin: 21px 0 0; color: #70837f; font-size: 12px; }
 
+.faq { padding-block: 84px 96px; }
+.faq .section-heading { margin-bottom: 30px; }
+.faq-list { display: grid; gap: 10px; max-width: 900px; }
+.faq-item { border: 1px solid #dce7e3; border-radius: 10px; background: #fff; }
+.faq-item summary {
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  min-height: 66px; padding: 17px 20px; color: #193f3c; font-size: 15px; font-weight: 800;
+  cursor: pointer; list-style: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; color: var(--brand-primary); font-size: 23px; font-weight: 500; line-height: 1; }
+.faq-item[open] summary::after { content: "−"; }
+.faq-item > p { max-width: 780px; margin: 0; padding: 0 20px 20px; color: #5b7270; font-size: 14px; }
+.faq-item[open] summary { padding-bottom: 11px; }
+
 .contact-wrap { border-top: 1px solid #e2eae7; background: #f0f5f2; }
 .cc-contact-form { padding-block: 98px !important; }
 .cc-contact-intro h2 { font-size: clamp(34px, 3.2vw, 45px) !important; }
@@ -292,6 +307,9 @@ p { line-height: 1.65; }
   .demo-invitation h2 { font-size: 32px; }
   .demo-invitation-actions { gap: 14px; }
   .plans { padding-block: 75px 68px; }
+  .faq { padding-block: 68px 74px; }
+  .faq-item summary { min-height: 60px; padding-inline: 16px; font-size: 14px; }
+  .faq-item > p { padding-inline: 16px; font-size: 13px; }
   .plan-card { min-height: 0; padding: 25px 23px; }
   .plan-card ul { margin-bottom: 28px; }
   .cc-contact-form { padding-block: 68px !important; }

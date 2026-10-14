@@ -180,10 +180,6 @@ function Hero() {
               Entenda como funciona <ArrowRight size={18} aria-hidden="true" />
             </a>
           </div>
-          <div className="hero-footnote">
-            <Check size={17} aria-hidden="true" />
-            Demonstração com dados fictícios, separada das contas reais
-          </div>
         </div>
         <div className="hero-tour">
           <SystemTour3D />

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, ChevronRight, Expand, ZoomIn, X } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Expand, ZoomIn, X } from "lucide-react";
 import "./system-tour-3d.css";
 
 const screens = [
@@ -65,6 +65,7 @@ export default function SystemTour3D() {
   const [active, setActive] = useState(0);
   const [drag, setDrag] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [settling, setSettling] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [zoomed, setZoomed] = useState(false);
   const [showCrispFace, setShowCrispFace] = useState(true);
@@ -86,11 +87,11 @@ export default function SystemTour3D() {
   }, []);
 
   useEffect(() => {
-    if (dragging) return undefined;
+    if (dragging || settling) return undefined;
     const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
     const timer = window.setTimeout(() => setShowCrispFace(true), delay);
     return () => window.clearTimeout(timer);
-  }, [active, dragging]);
+  }, [active, dragging, settling]);
 
   useEffect(() => {
     if (!expanded) return undefined;
@@ -153,6 +154,7 @@ export default function SystemTour3D() {
   const onPointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     pointer.current = { id: event.pointerId, x: event.clientX };
+    setSettling(false);
     setDragging(true);
     setShowCrispFace(false);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -169,6 +171,14 @@ export default function SystemTour3D() {
     pointer.current = null;
     setDragging(false);
     setDrag(0);
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (Math.abs(distance) > 1 && !prefersReducedMotion) {
+      setSettling(true);
+      setShowCrispFace(false);
+    } else {
+      setSettling(false);
+      setShowCrispFace(true);
+    }
     if (distance > DRAG_COMMIT_THRESHOLD) goTo(active - 1);
     if (distance < -DRAG_COMMIT_THRESHOLD) goTo(active + 1);
   };
@@ -176,6 +186,14 @@ export default function SystemTour3D() {
   const cancelDrag = () => {
     pointer.current = null;
     setDragging(false);
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (Math.abs(drag) > 1 && !prefersReducedMotion) {
+      setSettling(true);
+      setShowCrispFace(false);
+    } else {
+      setSettling(false);
+      setShowCrispFace(true);
+    }
     setDrag(0);
   };
 
@@ -185,7 +203,12 @@ export default function SystemTour3D() {
     <section className="system-tour" id="telas-do-sistema" aria-labelledby="system-tour-title">
       <div className="system-tour-heading">
         <h2 id="system-tour-title">Conheça as telas do sistema de gestão de serviços</h2>
-        <small>Arraste para girar ou escolha uma tela abaixo</small>
+        <div className="system-tour-heading-meta">
+          <small>Arraste para girar ou escolha uma tela abaixo</small>
+          <a className="system-tour-faq-link" href="/perguntas-frequentes/">
+            Dúvidas frequentes <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        </div>
       </div>
       <p className="system-tour-intro">
         Veja como o Conta Comigo reúne orçamentos, clientes, contratos, serviços e agenda
@@ -206,9 +229,15 @@ export default function SystemTour3D() {
         aria-label="Arraste na horizontal para girar as telas da demonstração"
       >
         <div
-          className={`system-tour-rotor${dragging ? " is-dragging" : ""}`}
+          className={`system-tour-rotor${dragging ? " is-dragging" : ""}${settling ? " is-settling" : ""}`}
           style={{ transform: `translateZ(-${radius}px) rotateY(${rotation}deg)` }}
           aria-hidden={showCrispFace}
+          onTransitionEnd={(event) => {
+            if (event.target === event.currentTarget && event.propertyName === "transform" && settling) {
+              setSettling(false);
+              setShowCrispFace(true);
+            }
+          }}
         >
           {screens.map((screen, index) => (
             <figure
@@ -287,6 +316,9 @@ export default function SystemTour3D() {
               <div className="system-tour-dialog-top-actions">
                 <button type="button" onClick={() => goTo(active - 1)} aria-label="Tela anterior"><ChevronLeft size={20} /></button>
                 <button type="button" onClick={() => goTo(active + 1)} aria-label="Próxima tela"><ChevronRight size={20} /></button>
+                <a className="system-tour-dialog-faq-link" href="/perguntas-frequentes/" aria-label="Abrir perguntas frequentes">
+                  <span>Perguntas frequentes</span> <ArrowUpRight size={17} aria-hidden="true" />
+                </a>
                 <button type="button" onClick={() => setZoomed((value) => !value)} aria-label={zoomed ? "Ajustar imagem à tela" : "Aproximar detalhes"} aria-pressed={zoomed}><ZoomIn size={20} /><span>{zoomed ? "Ajustar" : "Aproximar"}</span></button>
                 <button ref={closeButton} type="button" onClick={() => { setExpanded(false); setZoomed(false); }} aria-label="Fechar imagem ampliada"><X size={20} /></button>
               </div>

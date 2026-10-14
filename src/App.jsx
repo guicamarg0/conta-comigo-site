@@ -81,6 +81,24 @@ function DemoLink({ children, className = "", onClick }) {
 
 function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("inicio");
+
+  useEffect(() => {
+    const updateActiveSection = () => {
+      const current = [...navigation].reverse().find(({ href }) => {
+        const section = document.querySelector(href);
+        return section && section.getBoundingClientRect().top <= 150;
+      });
+      setActiveSection(current?.href.slice(1) || "inicio");
+    };
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+    return () => {
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -99,12 +117,15 @@ function SiteHeader() {
         </a>
         <nav className="desktop-nav" aria-label="Navegação principal">
           {navigation.map((item) => (
-            <a href={item.href} key={item.href}>
+            <a href={item.href} key={item.href} aria-current={activeSection === item.href.slice(1) ? "location" : undefined}>
               {item.label}
             </a>
           ))}
         </nav>
         <div className="header-actions">
+          <a className="header-login" href={LOGIN_URL} target="_blank" rel="noopener noreferrer">
+            Acessar sistema <ArrowUpRight size={15} aria-hidden="true" />
+          </a>
           <DemoLink className="header-demo">
             Explorar demonstração <ArrowUpRight size={16} aria-hidden="true" />
           </DemoLink>
@@ -123,10 +144,13 @@ function SiteHeader() {
       {menuOpen && (
         <nav className="mobile-nav" id="mobile-navigation" aria-label="Navegação para celular">
           {navigation.map((item) => (
-            <a href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
+            <a href={item.href} key={item.href} aria-current={activeSection === item.href.slice(1) ? "location" : undefined} onClick={() => setMenuOpen(false)}>
               {item.label}
             </a>
           ))}
+          <a href={LOGIN_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>
+            Acessar sistema <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
           <DemoLink className="mobile-demo" onClick={() => setMenuOpen(false)}>
             Explorar demonstração <ArrowUpRight size={17} aria-hidden="true" />
           </DemoLink>
@@ -141,7 +165,6 @@ function Hero() {
     <section className="hero" id="inicio" aria-labelledby="hero-title">
       <div className="hero-inner">
         <div className="hero-copy">
-          <span className="eyebrow"><span className="eyebrow-mark" /> Gestão de serviços sem complicação</span>
           <h1 id="hero-title">
             Mais clareza para quem <em>vive de prestar serviços.</em>
           </h1>

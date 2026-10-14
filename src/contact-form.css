@@ -61,7 +61,7 @@
   font: inherit;
   font-size: 13px;
 }
-.cc-contact-field textarea { min-height: 125px; resize: vertical; line-height: 1.5; }
+.cc-contact-field textarea { height: 140px; min-height: 140px; max-height: 140px; resize: none; overflow-y: auto; line-height: 1.5; }
 .cc-contact-field :is(input, select, textarea)::placeholder { color: #718582; opacity: 1; }
 .cc-contact-field :is(input, select, textarea):focus-visible {
   border-color: var(--brand-primary, #155b57);

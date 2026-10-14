@@ -23,14 +23,14 @@ const screens = [
     title: "Clientes",
     shortTitle: "Clientes",
     description: "Dados e histórico do cliente próximos de cada atendimento.",
-    image: "/screens/clientes.jpg",
+    image: "/screens/clientes.png",
     alt: "Tela de clientes da demonstração do Conta Comigo com dados fictícios",
   },
   {
     title: "Serviços",
     shortTitle: "Serviços",
     description: "Acompanhe o andamento de cada serviço em um lugar só.",
-    image: "/screens/servicos.jpg",
+    image: "/screens/servicos.png",
     alt: "Tela de serviços da demonstração do Conta Comigo com dados fictícios",
   },
   {
@@ -51,7 +51,7 @@ const screens = [
     title: "Peças e itens",
     shortTitle: "Peças",
     description: "Tenha os itens usados nos serviços organizados para preparar orçamentos.",
-    image: "/screens/pecas.jpg",
+    image: "/screens/pecas.png",
     alt: "Tela de peças e itens da demonstração do Conta Comigo com dados fictícios",
   },
 ];
@@ -65,10 +65,11 @@ export default function SystemTour3D() {
   const [zoomed, setZoomed] = useState(false);
   const [radius, setRadius] = useState(1080);
   const pointer = useRef(null);
+  const modalPointer = useRef(null);
   const stage = useRef(null);
   const expandButton = useRef(null);
-  const zoomButton = useRef(null);
   const closeButton = useRef(null);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     if (!stage.current) return undefined;
@@ -89,15 +90,20 @@ export default function SystemTour3D() {
         setExpanded(false);
         setZoomed(false);
       }
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        setActive((current) => (current + (event.key === "ArrowRight" ? 1 : -1) + screens.length) % screens.length);
+        setZoomed(false);
+      }
       if (event.key === "Tab") {
-        const onClose = document.activeElement === closeButton.current;
-        const onZoom = document.activeElement === zoomButton.current;
-        if (event.shiftKey && onZoom) {
+        const focusable = [...(dialogRef.current?.querySelectorAll('button:not([disabled]), a[href]') || [])];
+        if (!focusable.length) return;
+        if (event.shiftKey && document.activeElement === focusable[0]) {
           event.preventDefault();
-          closeButton.current?.focus();
-        } else if (!event.shiftKey && onClose) {
+          focusable.at(-1)?.focus();
+        } else if (!event.shiftKey && document.activeElement === focusable.at(-1)) {
           event.preventDefault();
-          zoomButton.current?.focus();
+          focusable[0]?.focus();
         }
       }
     };
@@ -113,6 +119,21 @@ export default function SystemTour3D() {
     setActive((index + screens.length) % screens.length);
     setDrag(0);
     setZoomed(false);
+  };
+
+  const onModalPointerDown = (event) => {
+    if (zoomed || (event.pointerType === "mouse" && event.button !== 0)) return;
+    modalPointer.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+  };
+
+  const onModalPointerUp = (event) => {
+    if (modalPointer.current?.id !== event.pointerId) return;
+    const distanceX = event.clientX - modalPointer.current.x;
+    const distanceY = event.clientY - modalPointer.current.y;
+    modalPointer.current = null;
+    if (Math.abs(distanceX) > 60 && Math.abs(distanceX) > Math.abs(distanceY) * 1.2) {
+      goTo(active + (distanceX < 0 ? 1 : -1));
+    }
   };
 
   const onPointerDown = (event) => {
@@ -225,17 +246,38 @@ export default function SystemTour3D() {
       </div>
       {expanded && createPortal(
         <div className="system-tour-lightbox" role="presentation" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setExpanded(false);
+          if (event.target === event.currentTarget) { setExpanded(false); setZoomed(false); }
         }}>
-          <div className={`system-tour-dialog${zoomed ? " is-zoomed" : ""}${screens[active].kind === "document" ? " is-document" : ""}`} role="dialog" aria-modal="true" aria-label={`Tela de ${screens[active].title}`}>
+          <div ref={dialogRef} className={`system-tour-dialog${zoomed ? " is-zoomed" : ""}${screens[active].kind === "document" ? " is-document" : ""}`} role="dialog" aria-modal="true" aria-label={`Tela de ${screens[active].title}`}>
             <div className="system-tour-dialog-top">
-              <span>{screens[active].title} · demonstração fictícia</span>
-              <div>
-                <button ref={zoomButton} type="button" onClick={() => setZoomed((value) => !value)} aria-label={zoomed ? "Ajustar imagem à tela" : "Aproximar detalhes"} aria-pressed={zoomed}><ZoomIn size={20} /><span>{zoomed ? "Ajustar" : "Aproximar"}</span></button>
+              <span aria-live="polite">{screens[active].title} <small>{active + 1} de {screens.length} · dados fictícios</small></span>
+              <div className="system-tour-dialog-top-actions">
+                <button type="button" onClick={() => goTo(active - 1)} aria-label="Tela anterior"><ChevronLeft size={20} /></button>
+                <button type="button" onClick={() => goTo(active + 1)} aria-label="Próxima tela"><ChevronRight size={20} /></button>
+                <button type="button" onClick={() => setZoomed((value) => !value)} aria-label={zoomed ? "Ajustar imagem à tela" : "Aproximar detalhes"} aria-pressed={zoomed}><ZoomIn size={20} /><span>{zoomed ? "Ajustar" : "Aproximar"}</span></button>
                 <button ref={closeButton} type="button" onClick={() => { setExpanded(false); setZoomed(false); }} aria-label="Fechar imagem ampliada"><X size={20} /></button>
               </div>
             </div>
-            <div className="system-tour-dialog-image"><img src={screens[active].image} alt={screens[active].alt} /></div>
+            <div
+              className="system-tour-dialog-image"
+              onPointerDown={onModalPointerDown}
+              onPointerUp={onModalPointerUp}
+              onPointerCancel={() => { modalPointer.current = null; }}
+            >
+              <img src={screens[active].image} alt={screens[active].alt} draggable="false" />
+            </div>
+            <div className="system-tour-dialog-footer">
+              <div className="system-tour-dialog-tabs" role="group" aria-label="Escolher tela ampliada">
+                {screens.map((screen, index) => (
+                  <button key={screen.title} type="button" aria-pressed={index === active} onClick={() => goTo(index)}>
+                    {screen.shortTitle}
+                  </button>
+                ))}
+              </div>
+              {screens[active].kind === "document" && (
+                <a href="/screens/orcamento-exemplo.pdf" target="_blank" rel="noopener noreferrer">Abrir PDF original <Expand size={16} aria-hidden="true" /></a>
+              )}
+            </div>
           </div>
         </div>,
         document.body

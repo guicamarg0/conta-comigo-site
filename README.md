@@ -17,7 +17,7 @@ Para gerar a versão de publicação:
 npm run build
 ```
 
-O resultado fica em `dist/`. Na Cloudflare Pages, configure **Build command** como `npm run build` e **Build output directory** como `dist`. O código está no repositório privado `guicamarg0/conta-comigo-site`; a landing ainda não foi publicada.
+O resultado fica em `dist/`. O projeto `site-contacomigo` na Cloudflare Pages usa **Build command** `npm run build` e **Build output directory** `dist`. A branch `main` do repositório público [`guicamarg0/conta-comigo-site`](https://github.com/guicamarg0/conta-comigo-site) publica automaticamente em [`site-contacomigo.pages.dev`](https://site-contacomigo.pages.dev/).
 
 ## Demonstração e contato
 

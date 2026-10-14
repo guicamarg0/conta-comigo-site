@@ -329,10 +329,12 @@
   .system-tour-faq-link { font-size: 11px; }
   .system-tour-intro { margin: -2px 8px 9px; font-size: 12px; line-height: 1.45; }
   .system-tour-stage {
-    height: clamp(210px, calc(100vh - 480px), 340px);
-    height: clamp(210px, calc(100svh - 480px), 340px);
+    width: min(100%, calc((100vh - 300px) * 1.78));
+    width: min(100%, calc((100svh - 300px) * 1.78));
+    height: auto;
     min-height: 0;
-    aspect-ratio: auto;
+    aspect-ratio: 1.78;
+    margin-inline: auto;
     border-radius: 16px;
   }
   .system-tour-face, .system-tour-flat { inset: 10px 1.5%; border-radius: 12px; }
@@ -358,7 +360,7 @@
   .system-tour-heading-meta { gap: 8px; }
   .system-tour-heading small, .system-tour-faq-link { font-size: 11px; }
   .system-tour-intro { margin-bottom: 9px; font-size: 12px; line-height: 1.45; }
-  .system-tour-stage { height: clamp(160px, 48svh, 240px); min-height: 0; aspect-ratio: auto; border-radius: 16px; }
+  .system-tour-stage { width: min(100%, calc((100vh - 150px) * 1.78)); width: min(100%, calc((100svh - 150px) * 1.78)); height: auto; min-height: 0; aspect-ratio: 1.78; margin-inline: auto; border-radius: 16px; }
   .system-tour-face, .system-tour-flat { inset: 9px 1%; border-radius: 11px; }
   .system-tour-screen-list { gap: 5px; margin-top: 9px; }
   .system-tour-screen-list button { min-height: 34px; gap: 5px; padding-inline: 8px; font-size: 10px; }

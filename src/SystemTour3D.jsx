@@ -57,6 +57,10 @@ const screens = [
 ];
 
 const faceAngle = 360 / screens.length;
+const MAX_DRAG_DISTANCE = 260;
+const DRAG_COMMIT_THRESHOLD = 90;
+const DRAG_ROTATION_FACTOR = 0.25;
+
 export default function SystemTour3D() {
   const [active, setActive] = useState(0);
   const [drag, setDrag] = useState(0);
@@ -156,7 +160,7 @@ export default function SystemTour3D() {
 
   const onPointerMove = (event) => {
     if (pointer.current?.id !== event.pointerId) return;
-    setDrag(Math.max(-260, Math.min(260, event.clientX - pointer.current.x)));
+    setDrag(Math.max(-MAX_DRAG_DISTANCE, Math.min(MAX_DRAG_DISTANCE, event.clientX - pointer.current.x)));
   };
 
   const finishDrag = (event) => {
@@ -165,8 +169,8 @@ export default function SystemTour3D() {
     pointer.current = null;
     setDragging(false);
     setDrag(0);
-    if (distance > 55) goTo(active - 1);
-    if (distance < -55) goTo(active + 1);
+    if (distance > DRAG_COMMIT_THRESHOLD) goTo(active - 1);
+    if (distance < -DRAG_COMMIT_THRESHOLD) goTo(active + 1);
   };
 
   const cancelDrag = () => {
@@ -175,14 +179,18 @@ export default function SystemTour3D() {
     setDrag(0);
   };
 
-  const rotation = -active * faceAngle + drag * 0.45;
+  const rotation = -active * faceAngle + drag * DRAG_ROTATION_FACTOR;
 
   return (
-    <section className="system-tour" id="telas-do-sistema" aria-label="Telas do Conta Comigo">
+    <section className="system-tour" id="telas-do-sistema" aria-labelledby="system-tour-title">
       <div className="system-tour-heading">
-        <span>Veja o sistema por dentro</span>
+        <h2 id="system-tour-title">Conheça as telas do sistema de gestão de serviços</h2>
         <small>Arraste para girar ou escolha uma tela abaixo</small>
       </div>
+      <p className="system-tour-intro">
+        Veja como o Conta Comigo reúne orçamentos, clientes, contratos, serviços e agenda
+        para ajudar profissionais autônomos e pequenas empresas a organizar cada atendimento.
+      </p>
       <div
         className="system-tour-stage"
         ref={stage}

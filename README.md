@@ -2,6 +2,8 @@
 
 Site de apresentação do Conta Comigo, independente da aplicação Web e da API. Contém as seções Início, Sobre, Planos e Contato, com capturas reais da demonstração em um painel interativo.
 
+A página `/perguntas-frequentes/` tem HTML pré-renderizado, metadados e URL canônica próprios. Ela agrupa respostas por público, orçamentos, contratos e gestão de serviços, e aparece no sitemap.
+
 ## Desenvolvimento
 
 Requer Node.js. Na pasta deste projeto:

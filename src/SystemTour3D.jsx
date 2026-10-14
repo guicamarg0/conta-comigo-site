@@ -63,6 +63,7 @@ export default function SystemTour3D() {
   const [dragging, setDragging] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [zoomed, setZoomed] = useState(false);
+  const [showCrispFace, setShowCrispFace] = useState(true);
   const [radius, setRadius] = useState(1080);
   const pointer = useRef(null);
   const modalPointer = useRef(null);
@@ -79,6 +80,13 @@ export default function SystemTour3D() {
     observer.observe(stage.current);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (dragging) return undefined;
+    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
+    const timer = window.setTimeout(() => setShowCrispFace(true), delay);
+    return () => window.clearTimeout(timer);
+  }, [active, dragging]);
 
   useEffect(() => {
     if (!expanded) return undefined;
@@ -116,9 +124,11 @@ export default function SystemTour3D() {
   }, [expanded]);
 
   const goTo = (index) => {
-    setActive((index + screens.length) % screens.length);
+    const next = (index + screens.length) % screens.length;
+    setActive(next);
     setDrag(0);
     setZoomed(false);
+    setShowCrispFace(next === active && !dragging);
   };
 
   const onModalPointerDown = (event) => {
@@ -140,6 +150,7 @@ export default function SystemTour3D() {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     pointer.current = { id: event.pointerId, x: event.clientX };
     setDragging(true);
+    setShowCrispFace(false);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
@@ -189,6 +200,7 @@ export default function SystemTour3D() {
         <div
           className={`system-tour-rotor${dragging ? " is-dragging" : ""}`}
           style={{ transform: `translateZ(-${radius}px) rotateY(${rotation}deg)` }}
+          aria-hidden={showCrispFace}
         >
           {screens.map((screen, index) => (
             <figure
@@ -211,6 +223,19 @@ export default function SystemTour3D() {
             </figure>
           ))}
         </div>
+        <figure className={`system-tour-flat${screens[active].kind === "document" ? " is-document" : ""}${showCrispFace ? " is-visible" : ""}`} aria-hidden={!showCrispFace}>
+          <div className="system-tour-visual">
+            <img src={screens[active].image} alt={screens[active].alt} draggable="false" loading="eager" />
+          </div>
+          {screens[active].kind === "document" && (
+            <figcaption className="system-tour-document-caption">
+              <span>Gerado no Conta Comigo</span>
+              <strong>Um orçamento pronto para apresentar.</strong>
+              <p>Logo da empresa, serviços e valores organizados em um PDF real da demonstração.</p>
+              <small>Use “Ampliar tela” para ler os detalhes.</small>
+            </figcaption>
+          )}
+        </figure>
       </div>
       <div className="system-tour-screen-list" role="group" aria-label="Escolher tela do sistema">
         {screens.map((screen, index) => (

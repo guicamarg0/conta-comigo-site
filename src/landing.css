@@ -107,7 +107,7 @@ p { line-height: 1.65; }
 .hero::after { width: 400px; height: 390px; right: calc(50% - 940px); top: 480px; opacity: .045; transform: rotate(14deg); }
 .hero-inner, .flow-strip { position: relative; z-index: 1; }
 .hero-inner {
-  width: min(1240px, calc(100% - 48px)); margin-inline: auto;
+  width: min(1360px, calc(100% - 48px)); margin-inline: auto;
   padding: 72px 0 76px;
   display: grid; grid-template-columns: minmax(0, 1fr);
   gap: 50px;
@@ -125,7 +125,7 @@ p { line-height: 1.65; }
   color: #637e78; font-size: 12px; font-weight: 600; line-height: 1.45;
 }
 .hero-footnote svg { color: #2d8a69; flex: none; }
-.hero-tour { width: min(1160px, 100%); min-width: 0; margin-inline: auto; }
+.hero-tour { width: min(1320px, 100%); min-width: 0; margin-inline: auto; }
 .flow-strip {
   min-height: 78px; display: flex; align-items: center; justify-content: center; gap: 50px;
   padding: 18px 24px; border-top: 1px solid #dce9e4; border-bottom: 1px solid #dce9e4;

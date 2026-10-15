@@ -74,6 +74,7 @@
   background: #fff;
   box-shadow: 0 26px 64px #153e3836;
   backface-visibility: hidden;
+  grid-template-rows: minmax(0, 1fr);
 }
 .system-tour-flat { z-index: 2; opacity: 0; transition: opacity .16s ease; pointer-events: none; }
 .system-tour-flat.is-visible { opacity: 1; }
@@ -280,7 +281,7 @@
   .system-tour-heading small { font-size: 11px; }
   .system-tour-faq-link { font-size: 11px; }
   .system-tour-intro { margin-top: -4px; font-size: 12px; }
-  .system-tour-stage { height: clamp(190px, 34svh, 340px); min-height: 0; aspect-ratio: auto; perspective: 1000px; }
+  .system-tour-stage { height: clamp(210px, 36svh, 360px); min-height: 0; aspect-ratio: auto; perspective: 1000px; }
   .system-tour-face, .system-tour-flat { inset: 9px 1%; border-radius: 11px; }
   .system-tour-face.is-document, .system-tour-flat.is-document { display: grid; grid-template-columns: 1fr; }
   .system-tour-face.is-document .system-tour-visual, .system-tour-flat.is-document .system-tour-visual { padding: 9px; }

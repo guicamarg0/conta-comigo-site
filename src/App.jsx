@@ -114,7 +114,7 @@ function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         <a className="site-logo" href="#inicio" aria-label="Conta Comigo, voltar ao início">
-          <img src="/marca/logo-horizontal.svg" alt="Conta Comigo" />
+          <img src="/marca/logo-horizontal.svg" alt="Conta Comigo" width="1151.739" height="208.190" />
         </a>
         <nav className="desktop-nav" aria-label="Navegação principal">
           {navigation.map((item) => (
@@ -309,7 +309,7 @@ function SiteFooter() {
       <div className="footer-main section-container">
         <div className="footer-brand">
           <a href="#inicio" aria-label="Conta Comigo, voltar ao início">
-            <img src="/marca/logo-horizontal.svg" alt="Conta Comigo" />
+            <img src="/marca/logo-horizontal.svg" alt="Conta Comigo" width="1151.739" height="208.190" />
           </a>
           <p>Mais clareza em cada etapa do seu serviço.</p>
         </div>

@@ -9,6 +9,12 @@ const screens = [
     shortTitle: "Orçamentos",
     description: "Itens, valores e condições em uma proposta organizada.",
     image: "/screens/orcamentos.png",
+    preview: "/screens/previews/orcamentos-1600w.webp",
+    previewSrcSet: "/screens/previews/orcamentos-800w.webp 800w, /screens/previews/orcamentos-1200w.webp 1200w, /screens/previews/orcamentos-1600w.webp 1600w",
+    previewSizes: "100vw",
+    previewWidths: [800, 1200, 1600],
+    width: 2400,
+    height: 1350,
     alt: "Tela real da demonstração do Conta Comigo com a lista de orçamentos fictícios",
   },
   {
@@ -16,6 +22,12 @@ const screens = [
     shortTitle: "PDF",
     description: "O orçamento gerado pelo próprio sistema, com logo e cinco itens de exemplo.",
     image: "/screens/orcamento-pdf.png",
+    preview: "/screens/previews/orcamento-pdf-1200w.webp",
+    previewSrcSet: "/screens/previews/orcamento-pdf-640w.webp 640w, /screens/previews/orcamento-pdf-960w.webp 960w, /screens/previews/orcamento-pdf-1200w.webp 1200w",
+    previewSizes: "55vw",
+    previewWidths: [640, 960, 1200],
+    width: 2481,
+    height: 3508,
     alt: "PDF de orçamento gerado pelo Conta Comigo com logo da empresa e cinco itens fictícios",
     kind: "document",
   },
@@ -24,6 +36,12 @@ const screens = [
     shortTitle: "Clientes",
     description: "Dados e histórico do cliente próximos de cada atendimento.",
     image: "/screens/clientes.png",
+    preview: "/screens/previews/clientes-1600w.webp",
+    previewSrcSet: "/screens/previews/clientes-800w.webp 800w, /screens/previews/clientes-1200w.webp 1200w, /screens/previews/clientes-1600w.webp 1600w",
+    previewSizes: "100vw",
+    previewWidths: [800, 1200, 1600],
+    width: 2560,
+    height: 1440,
     alt: "Tela de clientes da demonstração do Conta Comigo com dados fictícios",
   },
   {
@@ -31,6 +49,12 @@ const screens = [
     shortTitle: "Serviços",
     description: "Acompanhe o andamento de cada serviço em um lugar só.",
     image: "/screens/servicos.png",
+    preview: "/screens/previews/servicos-1600w.webp",
+    previewSrcSet: "/screens/previews/servicos-800w.webp 800w, /screens/previews/servicos-1200w.webp 1200w, /screens/previews/servicos-1600w.webp 1600w",
+    previewSizes: "100vw",
+    previewWidths: [800, 1200, 1600],
+    width: 2560,
+    height: 1440,
     alt: "Tela de serviços da demonstração do Conta Comigo com dados fictícios",
   },
   {
@@ -38,6 +62,12 @@ const screens = [
     shortTitle: "Agenda",
     description: "Compromissos e serviços visíveis para acompanhar a rotina.",
     image: "/screens/agenda.png",
+    preview: "/screens/previews/agenda-1600w.webp",
+    previewSrcSet: "/screens/previews/agenda-800w.webp 800w, /screens/previews/agenda-1200w.webp 1200w, /screens/previews/agenda-1600w.webp 1600w",
+    previewSizes: "100vw",
+    previewWidths: [800, 1200, 1600],
+    width: 2400,
+    height: 1350,
     alt: "Tela real da demonstração do Conta Comigo com agenda de serviços fictícios",
   },
   {
@@ -45,6 +75,12 @@ const screens = [
     shortTitle: "Contratos",
     description: "Documentos e histórico ligados ao trabalho combinado.",
     image: "/screens/contratos.png",
+    preview: "/screens/previews/contratos-1600w.webp",
+    previewSrcSet: "/screens/previews/contratos-800w.webp 800w, /screens/previews/contratos-1200w.webp 1200w, /screens/previews/contratos-1600w.webp 1600w",
+    previewSizes: "100vw",
+    previewWidths: [800, 1200, 1600],
+    width: 2400,
+    height: 1350,
     alt: "Tela real da demonstração do Conta Comigo com contratos fictícios",
   },
   {
@@ -52,6 +88,12 @@ const screens = [
     shortTitle: "Peças",
     description: "Tenha os itens usados nos serviços organizados para preparar orçamentos.",
     image: "/screens/pecas.png",
+    preview: "/screens/previews/pecas-1600w.webp",
+    previewSrcSet: "/screens/previews/pecas-800w.webp 800w, /screens/previews/pecas-1200w.webp 1200w, /screens/previews/pecas-1600w.webp 1600w",
+    previewSizes: "100vw",
+    previewWidths: [800, 1200, 1600],
+    width: 2560,
+    height: 1440,
     alt: "Tela de peças e itens da demonstração do Conta Comigo com dados fictícios",
   },
 ];
@@ -70,12 +112,74 @@ export default function SystemTour3D() {
   const [zoomed, setZoomed] = useState(false);
   const [showCrispFace, setShowCrispFace] = useState(true);
   const [radius, setRadius] = useState(1080);
+  const [preparedPreviews, setPreparedPreviews] = useState(() => new Set([0]));
+  const previewLoads = useRef(new Map());
+  const originalLoads = useRef(new Map());
   const pointer = useRef(null);
   const modalPointer = useRef(null);
   const stage = useRef(null);
   const expandButton = useRef(null);
   const closeButton = useRef(null);
   const dialogRef = useRef(null);
+
+  const normalizedIndex = (index) => (index + screens.length) % screens.length;
+  const loadImage = (cache, cacheKey, src, priority = "low", srcSet = "", sizes = "100vw") => {
+    const cached = cache.current.get(cacheKey);
+    if (cached) {
+      if (priority === "high" && "fetchPriority" in cached.image) cached.image.fetchPriority = priority;
+      return cached.promise;
+    }
+    const image = new window.Image();
+    image.decoding = "async";
+    image.sizes = sizes;
+    if ("fetchPriority" in image) image.fetchPriority = priority;
+    if (srcSet) image.srcset = srcSet;
+    const promise = new Promise((resolve) => {
+      image.onload = async () => {
+        try { await image.decode(); } catch { /* onload confirms image data is available */ }
+        resolve(true);
+      };
+      image.onerror = () => { cache.current.delete(cacheKey); resolve(false); };
+    });
+    cache.current.set(cacheKey, { image, promise });
+    image.src = src;
+    return promise;
+  };
+  const previewSource = (screen) => {
+    const viewportWidth = typeof window === "undefined" ? 1200 : window.innerWidth;
+    const stageWidth = stage.current?.clientWidth || viewportWidth;
+    const displayWidth = stageWidth * (screen.kind === "document" ? 0.55 : 1);
+    const requiredWidth = displayWidth * (typeof window === "undefined" ? 1 : window.devicePixelRatio || 1);
+    const width = screen.previewWidths.find((candidate) => candidate >= requiredWidth) || screen.previewWidths.at(-1);
+    return screen.previewSrcSet.split(", ").find((entry) => entry.endsWith(`${width}w`))?.replace(` ${width}w`, "") || screen.preview;
+  };
+  const preloadPreview = async (index, priority = "low") => {
+    const target = normalizedIndex(index);
+    const screen = screens[target];
+    const src = previewSource(screen);
+    const loaded = await loadImage(previewLoads, `${target}:${src}`, src, priority, screen.previewSrcSet, screen.previewSizes);
+    if (loaded) {
+      setPreparedPreviews((current) => {
+        if (current.has(target)) return current;
+        const next = new Set(current);
+        next.add(target);
+        return next;
+      });
+    }
+    return loaded;
+  };
+  const preloadOriginal = (index, priority = "high") => {
+    const target = normalizedIndex(index);
+    return loadImage(originalLoads, target, screens[target].image, priority);
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void preloadPreview(active - 1);
+      void preloadPreview(active + 1);
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [active]);
 
   useEffect(() => {
     if (!stage.current) return undefined;
@@ -128,12 +232,19 @@ export default function SystemTour3D() {
     };
   }, [expanded]);
 
-  const goTo = (index) => {
-    const next = (index + screens.length) % screens.length;
+  const goTo = async (index) => {
+    const next = normalizedIndex(index);
+    await preloadPreview(next, "high");
+    if (expanded) await preloadOriginal(next, "high");
     setActive(next);
     setDrag(0);
     setZoomed(false);
     setShowCrispFace(next === active && !dragging);
+  };
+
+  const openExpanded = async () => {
+    await Promise.all([preloadPreview(active, "high"), preloadOriginal(active, "high")]);
+    setExpanded(true);
   };
 
   const onModalPointerDown = (event) => {
@@ -154,6 +265,8 @@ export default function SystemTour3D() {
   const onPointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     pointer.current = { id: event.pointerId, x: event.clientX };
+    void preloadPreview(active - 1, "high");
+    void preloadPreview(active + 1, "high");
     setSettling(false);
     setDragging(true);
     setShowCrispFace(false);
@@ -169,6 +282,14 @@ export default function SystemTour3D() {
     if (pointer.current?.id !== event.pointerId) return;
     const distance = event.clientX - pointer.current.x;
     pointer.current = null;
+    const target = distance > DRAG_COMMIT_THRESHOLD ? active - 1 : distance < -DRAG_COMMIT_THRESHOLD ? active + 1 : null;
+    if (target !== null) {
+      setDragging(false);
+      setSettling(true);
+      setShowCrispFace(false);
+      void goTo(target);
+      return;
+    }
     setDragging(false);
     setDrag(0);
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -179,8 +300,6 @@ export default function SystemTour3D() {
       setSettling(false);
       setShowCrispFace(true);
     }
-    if (distance > DRAG_COMMIT_THRESHOLD) goTo(active - 1);
-    if (distance < -DRAG_COMMIT_THRESHOLD) goTo(active + 1);
   };
 
   const cancelDrag = () => {
@@ -239,30 +358,34 @@ export default function SystemTour3D() {
             }
           }}
         >
-          {screens.map((screen, index) => (
-            <figure
-              className={`system-tour-face${screen.kind === "document" ? " is-document" : ""}`}
-              key={screen.title}
-              style={{ transform: `rotateY(${index * faceAngle}deg) translateZ(${radius}px)` }}
-              aria-hidden={index !== active}
-            >
-              <div className="system-tour-visual">
-                <img src={screen.image} alt={screen.alt} draggable="false" loading="eager" />
-              </div>
-              {screen.kind === "document" && (
-                <figcaption className="system-tour-document-caption">
-                  <span>Gerado no Conta Comigo</span>
-                  <strong>Um orçamento pronto para apresentar.</strong>
-                  <p>Logo da empresa, serviços e valores organizados em um PDF real da demonstração.</p>
-                  <small>Use “Ampliar tela” para ler os detalhes.</small>
-                </figcaption>
-              )}
-            </figure>
-          ))}
+          {screens.map((screen, index) => {
+            const preview = preparedPreviews.has(index) ? screen : screens[active];
+            const previewUrl = previewSource(preview);
+            return (
+              <figure
+                className={`system-tour-face${screen.kind === "document" ? " is-document" : ""}`}
+                key={screen.title}
+                style={{ transform: `rotateY(${index * faceAngle}deg) translateZ(${radius}px)` }}
+                aria-hidden={index !== active}
+              >
+                <div className="system-tour-visual">
+                  <img src={previewUrl} srcSet={preview.previewSrcSet} sizes={preview.previewSizes} alt={screen.alt} width={preview.width} height={preview.height} draggable="false" loading={index === active ? "eager" : "lazy"} decoding="async" fetchPriority={index === active ? "high" : "low"} />
+                </div>
+                {screen.kind === "document" && (
+                  <figcaption className="system-tour-document-caption">
+                    <span>Gerado no Conta Comigo</span>
+                    <strong>Um orçamento pronto para apresentar.</strong>
+                    <p>Logo da empresa, serviços e valores organizados em um PDF real da demonstração.</p>
+                    <small>Use “Ampliar tela” para ler os detalhes.</small>
+                  </figcaption>
+                )}
+              </figure>
+            );
+          })}
         </div>
         <figure className={`system-tour-flat${screens[active].kind === "document" ? " is-document" : ""}${showCrispFace ? " is-visible" : ""}`} aria-hidden={!showCrispFace}>
           <div className="system-tour-visual">
-            <img src={screens[active].image} alt={screens[active].alt} draggable="false" loading="eager" />
+            <img src={previewSource(screens[active])} srcSet={screens[active].previewSrcSet} sizes={screens[active].previewSizes} alt={screens[active].alt} width={screens[active].width} height={screens[active].height} draggable="false" loading="eager" decoding="async" fetchPriority="high" />
           </div>
           {screens[active].kind === "document" && (
             <figcaption className="system-tour-document-caption">
@@ -303,7 +426,7 @@ export default function SystemTour3D() {
           <button type="button" onClick={() => goTo(active - 1)} aria-label="Tela anterior"><ChevronLeft size={18} /></button>
           <span className="system-tour-counter">{String(active + 1).padStart(2, "0")} / {String(screens.length).padStart(2, "0")}</span>
           <button type="button" onClick={() => goTo(active + 1)} aria-label="Próxima tela"><ChevronRight size={18} /></button>
-          <button ref={expandButton} type="button" className="system-tour-expand" onClick={() => setExpanded(true)} aria-label={`Ampliar tela de ${screens[active].title}`}><Expand size={17} /><span>Ampliar tela</span></button>
+          <button ref={expandButton} type="button" className="system-tour-expand" onClick={() => { void openExpanded(); }} aria-label={`Ampliar tela de ${screens[active].title}`}><Expand size={17} /><span>Ampliar tela</span></button>
         </div>
       </div>
       {expanded && createPortal(
@@ -329,7 +452,7 @@ export default function SystemTour3D() {
               onPointerUp={onModalPointerUp}
               onPointerCancel={() => { modalPointer.current = null; }}
             >
-              <img src={screens[active].image} alt={screens[active].alt} draggable="false" />
+              <img src={screens[active].image} alt={screens[active].alt} width={screens[active].width} height={screens[active].height} draggable="false" decoding="async" fetchPriority="high" />
             </div>
             <div className="system-tour-dialog-footer">
               <div className="system-tour-dialog-tabs" role="group" aria-label="Escolher tela ampliada">
